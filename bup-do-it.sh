@@ -1,6 +1,8 @@
 #!/bin/bash
 
 BACKUP_DRIVE=/media/backup
+BUP_DIR=${BACKUP_DRIVE}/bup
+
 mount() {
 	mount ${BACKUP_DRIVE} -o remount,rw
 
@@ -13,7 +15,6 @@ mount
 echo "beginning backup: $(date)" >> ${BACKUP_DRIVE}/backupError.log
 
 
-BUP_DIR=${BACKUP_DRIVE}/bup
 
 
 bup index --exclude=~./gvfs/ --exclude=~/.cache/ ~ >> ${BACKUP_DRIVE}/backupError.log
