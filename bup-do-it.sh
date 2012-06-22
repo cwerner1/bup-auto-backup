@@ -1,8 +1,15 @@
 #!/bin/bash
 
 BACKUP_DRIVE=/media/backup
-mount ${BACKUP_DRIVE} -o remount,rw
+mount() {
+	mount ${BACKUP_DRIVE} -o remount,rw
 
+}
+unmount() {
+        mount ${BACKUP_DRIVE} -o remount,ro
+}
+
+mount
 echo "beginning backup: $(date)" >> ${BACKUP_DRIVE}/backupError.log
 
 
@@ -16,7 +23,6 @@ echo "beginning Saving: $(date)" >> ${BACKUP_DRIVE}/backupError.log
 
 bup save -n $(hostname) ~ >> ${BACKUP_DRIVE}/backupError.log
 
-mount ${BACKUP_DRIVE} -o remount,ro
-
+unmount
 echo "backup Done"
 echo ""
