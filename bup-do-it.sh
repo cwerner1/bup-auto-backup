@@ -1,17 +1,16 @@
 #!/bin/bash
-
 BACKUP_DRIVE=/media/backup
 BUP_DIR=${BACKUP_DRIVE}/bup
 
-mount() {
+mountit() {
 	mount ${BACKUP_DRIVE} -o remount,rw
 
 }
-unmount() {
+unmountit() {
         mount ${BACKUP_DRIVE} -o remount,ro
 }
 
-mount
+mountit
 echo "beginning backup: $(date)" >> ${BACKUP_DRIVE}/backupError.log
 
 
@@ -24,6 +23,6 @@ echo "beginning Saving: $(date)" >> ${BACKUP_DRIVE}/backupError.log
 
 bup save -n $(hostname) ~ >> ${BACKUP_DRIVE}/backupError.log
 
-unmount
+unmountit
 echo "backup Done"
 echo ""
