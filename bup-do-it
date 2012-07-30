@@ -4,11 +4,11 @@ BUP=bup
 BUP_DIR=${BACKUP_DRIVE}/${BUP}
 
 mountit() {
-	mount ${BACKUP_DRIVE} -o remount,rw
+	mount ${BACKUP_DRIVE} -o remount,rw >> ${BACKUP_DRIVE}/backupError.log
 
 }
 unmountit() {
-        mount ${BACKUP_DRIVE} -o remount,ro
+        mount ${BACKUP_DRIVE} -o remount,ro >> ${BACKUP_DRIVE}/backupError.log
 }
 getOwner() {
 	echo $(ls -l ${BACKUP_DRIVE} | grep ${BUP} | awk '{print $3}')
@@ -17,7 +17,7 @@ getOwner() {
 mountit
 echo "beginning backup: $(date)" >> ${BACKUP_DRIVE}/backupError.log
 
-bup -d ${BUP_DIR} index --exclude=~./gvfs/ --exclude=~/.cache/ ~ >> ${BACKUP_DRIVE}/backupError.log
+bup -d ${BUP_DIR} index --exclude=/home/christian/./gvfs/ --exclude=/home/christian/.cache/ --exclude=~/home/christian/To.Sort/ ~ >> ${BACKUP_DRIVE}/backupError.log
 
 echo ""
 echo "beginning Saving: $(date)" >> ${BACKUP_DRIVE}/backupError.log
