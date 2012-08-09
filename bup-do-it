@@ -17,12 +17,30 @@ getOwner() {
 }
 
 
+excludeFolders() {
+
+	excludeF=(
+		'/home/christian/.gvfs/'
+		'/home/christian/.cache/'
+		'/home/christian/To.Sort'
+	)
+	excludeStr=''
+	for((i=0;i<${#excludeF};i++));
+	do
+		if [ "${excludeF[$i]}" == "" ]; then
+			continue
+		fi
+		excludeStr="$excludeStr --exclude=${excludeF[$i]}"
+	done
+	echo "$excludeStr"
+}
 
 backup() {
 	mountit
+	
 	echo "beginning backup: $(date)" >> ${BACKUP_DRIVE}/backupError.log
-
-	bup -d ${BUP_DIR} index --exclude=/home/christian/./gvfs/ --exclude=/home/christian/.cache/ --exclude=~/home/christian/To.Sort/ ~ >> ${BACKUP_DRIVE}/backupError.log
+	excludeFolders
+	bup -d ${BUP_DIR} index ${excludeStr} ~ >> ${BACKUP_DRIVE}/backupError.log
 
 	echo ""
 	echo "beginning Saving: $(date)" >> ${BACKUP_DRIVE}/backupError.log
