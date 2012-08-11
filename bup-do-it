@@ -39,6 +39,7 @@ excludeFolders() {
 		'/home/christian/.adobe/'
 		'/home/christian/.dropbox/'
 		'/home/christian/.thumbnails/'
+		'/home/christian/Downloads/'
 	)
 	excludeStr=''
 	for((i=0;i<${#excludeF};i++));
