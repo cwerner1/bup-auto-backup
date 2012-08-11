@@ -1,28 +1,44 @@
 #!/bin/bash
+TIME_START=$(date +%s)
 BACKUP_DRIVE=/media/backup
 BUP=bup
 BUP_DIR=${BACKUP_DRIVE}/${BUP}
+LOG_FILE=${BACKUP_DRIVE}/backupError.log
 
+DRYRUN=FALSE
+
+run() {
+	if [ "${DRYRUN}" == "TRUE" ]; then
+		echo "$@"
+	else
+		"$@"
+	fi
+}
 
 mountit() {
-	rm /tmp/backupError.log
-	mount ${BACKUP_DRIVE} -o remount,rw >> /tmp/backupError.log
-	cat /tmp/backupError.log >> ${BACKUP_DRIVE}/backupError.log
+	run rm /tmp/backupError.log
+	run mount ${BACKUP_DRIVE} -o remount,rw >> /tmp/backupError.log
+	run cat /tmp/backupError.log >> ${LOG_FILE}
 }
 unmountit() {
-        mount ${BACKUP_DRIVE} -o remount,ro
+        run mount ${BACKUP_DRIVE} -o remount,ro
 }
 getOwner() {
 	echo $(ls -l ${BACKUP_DRIVE} | grep ${BUP} | awk '{print $3}')
 }
 
-
+ech() {
+	echo "$1" | tee -a ${LOG_FILE}
+}
 excludeFolders() {
 
 	excludeF=(
 		'/home/christian/.gvfs/'
 		'/home/christian/.cache/'
 		'/home/christian/To.Sort'
+		'/home/christian/.adobe/'
+		'/home/christian/.dropbox/'
+		'/home/christian/.thumbnails/'
 	)
 	excludeStr=''
 	for((i=0;i<${#excludeF};i++));
@@ -32,25 +48,29 @@ excludeFolders() {
 		fi
 		excludeStr="$excludeStr --exclude=${excludeF[$i]}"
 	done
-	echo "$excludeStr"
 }
+
 
 backup() {
 	mountit
 	
-	echo "beginning backup: $(date)" >> ${BACKUP_DRIVE}/backupError.log
+	ech "Beginning Backup: $(date)"
 	excludeFolders
-	bup -d ${BUP_DIR} index ${excludeStr} ~ >> ${BACKUP_DRIVE}/backupError.log
+	ech "Excluded Folders: ${excludeStr}" 
+	run bup -d ${BUP_DIR} index ${excludeStr} ~ >> ${LOG_FILE}
 
 	echo ""
-	echo "beginning Saving: $(date)" >> ${BACKUP_DRIVE}/backupError.log
+	ech "Beginning Saving: $(date)"
 
-	bup -d ${BUP_DIR} save -n $(hostname) ~ >> ${BACKUP_DRIVE}/backupError.log
+	run bup -d ${BUP_DIR} save -n $(hostname) ~ >> ${LOG_FILE}
 	echo ""
-	echo "setting Directory Owner back to owner"
-	chown -R $(getOwner):$(getOwner) $BUP_DIR	
+	echo "Setting Directory Owner back to owner"
+	run chown -R $(getOwner):$(getOwner) $BUP_DIR	
 	unmountit
-	echo "backup Done"
+	durationInS="$(($(date +%s)-${TIME_START}))"
+	durationNice="$((durationInS/3600))h$((durationInS % 3600 / 60))m$((durationInS % 60))s"
+	duration="(${durationInS}s | ${durationNice})" 
+	ech "Backup Done: ${duration} - $(date) "
 	echo ""
 }
 
@@ -58,6 +78,7 @@ if [ "$1" != "" ]; then
         $1
         exit 0
 else
+	
 	backup
 fi
 
