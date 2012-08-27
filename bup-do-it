@@ -40,6 +40,7 @@ excludeFolders() {
 		'/home/christian/.dropbox/'
 		'/home/christian/.thumbnails/'
 		'/home/christian/Downloads/'
+		'/home/christian/.pyload/Downloads/'
 	)
 	excludeStr=''
 	for((i=0;i<${#excludeF};i++));
